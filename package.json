@@ -1,0 +1,16 @@
+{
+  "name": "gulp-task-runner",
+  "version": "1.0.0",
+  "description": "Simple task runner so I don't have to remember command syntax",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Antoine Lafontaine",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-shell": "^0.5.2",
+    "gulp-task-listing": "^1.0.1"
+  }
+}
