@@ -1,19 +1,71 @@
 ---
 - hosts: raspbian
-  gather_facts: true
-  become: true
-  remote_user: pi
+  gather_facts: yes
+  become: yes
+
+  vars:
+    update_cache: yes
+    wifi:
+      ssid: Pi3.ap
+      password: Password
+      country: CA
+    packages_to_install: [
+        git,
+        htop,
+        dnsmasq,
+        hostapd
+      ]
   
   tasks:
+    - name: Install packages
+      apt:
+        pkg: '{{ item }}'
+        state: installed
+        update_cache: '{{ update_cache }}'
+      with_items: '{{ packages_to_install }}'
+
+    - name: Put improved .profile in place
+      template:
+        src: templates/profile.j2
+        dest: /home/pi/.profile
+
+    - name: Put dhcpcd config in place
+      template:
+        src: templates/dhcpcd.conf.j2
+        dest: /etc/dhcpcd.conf
+
+    - name: Put interfaces config in place
+      template:
+        src: templates/interfaces.j2
+        dest: /etc/network/interfaces
+
+    - name: Put hostapd config in place
+      template:
+        src: templates/hostapd.conf.j2
+        dest: /etc/hostapd/hostapd.conf
+
+    - name: Put wifi config in place
+      template:
+        src: templates/wpa_supplicant.conf.j2
+        dest: /etc/wpa_supplicant/wpa_supplicant.conf
+      notify:
+        - reboot
+
     - name: Installs nginx web server
       apt:
         pkg: nginx
         state: installed
-        update_cache: true
+        update_cache: '{{ update_cache }}'
       notify:
         - start nginx
 
   handlers:
+    - name: reboot
+      command: shutdown -r now "Ansible updates triggered"
+      async: 0
+      poll: 0
+      ignore_errors: true
+
     - name: start nginx
       service:
         name: nginx
